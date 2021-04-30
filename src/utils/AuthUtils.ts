@@ -27,3 +27,13 @@ export function verifyJWT(token: string): verificationResult {
 
     return result as verificationResult;
 }
+
+export function checkAuthToken(header: string | undefined): verificationResult {
+
+    if(header === undefined) throw Error("Token is missing");
+
+    const token = header.split(' ')[1];
+
+    return verifyJWT(token);
+
+}

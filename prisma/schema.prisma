@@ -16,3 +16,15 @@ model User {
     createAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
 }
+
+model Reminder {
+    @@map("reminder")
+    id String @id
+    name String 
+    description String
+    scheduled_data_time DateTime
+    email_to_remind_on String
+    is_recurring Int
+    createAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+}
