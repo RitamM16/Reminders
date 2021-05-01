@@ -7,8 +7,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}\\src\\index.ts",
+            "name": "Launch API Server",
+            "program": "${workspaceFolder}\\src\\API Server\\index.ts",
             "sourceMaps": true,
             "trace": "all",
             "outFiles": [

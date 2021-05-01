@@ -4,7 +4,7 @@
   "description": "A simple app that reminds you of your important events",
   "main": "index.js",
   "scripts": {
-    "start": "node ./dist/index.js",
+    "start:server": "node ./dist/API Server/index.js",
     "build": "npx tsc",
     "build:watch": "npx tsc -w"
   },
