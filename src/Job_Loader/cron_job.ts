@@ -1,6 +1,10 @@
 import { Queue } from "bullmq";
 import schedule from "node-schedule";
 import { getAllTheJobsWithInGiveTime } from "./utils";
+import date from "date-and-time";
+import ioredis from "ioredis";
+
+const redis = new ioredis(6379,"localhost");
 
 const every5sec = "*/5 * * * * *";
 
@@ -12,16 +16,22 @@ const remindersQueue = new Queue('reminders');
 export async function scheduleCronJob(){
     schedule.scheduleJob(every5sec, async () => {
         console.log("Its working");
-    
+
+        const next_time = date.addMinutes(new Date(), 30).toUTCString();
+
+        await redis.set("state:update_time",next_time);
+
         const reminders = await getAllTheJobsWithInGiveTime(24);
+
+        if(reminders.length === 0) return;
     
         await remindersQueue.addBulk(reminders.map(reminder => {
             return {
                 name: reminder.id,
                 data: {
-                    name: reminder.name,
-                    email: reminder.email_to_remind_on,
-                    time: reminder.scheduled_data_time
+                    id: reminder.id,
+                    time: reminder.scheduled_data_time,
+                    updateAt: reminder.updatedAt
                 }
             }
         }))

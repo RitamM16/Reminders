@@ -26,7 +26,8 @@ model Reminder {
   description         String
   scheduled_data_time DateTime
   email_to_remind_on  String
-  is_recurring        Int
+  is_recurring        String
+  completed           Int      @default(0)
   createAt            DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
   User                User?    @relation(fields: [user_id], references: [id])

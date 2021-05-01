@@ -2,6 +2,12 @@ import { Express } from "express";
 import { checkAuthToken, verifyJWT } from "../utils/AuthUtils";
 import {appDelete, appPost, prisma} from "./root";
 import {v4 as uuid4} from "uuid";
+import ioredis from "ioredis";
+import { Queue } from "bullmq";
+
+const redis = new ioredis(6379,"localhost");
+
+const queue = new Queue("reminders");
 
 export const reminder = (app: Express) => {
     
@@ -14,6 +20,7 @@ export const reminder = (app: Express) => {
         const desc = req.body['desc'];
         const onTime = req.body['onTime'];
         const email = req.body['email'];
+        const is_recurring = req.body['is_recurring'];//no, day, week, month, year
 
         if(typeof(name) !== "string" && name === ""){
             throw Error("Name format Invalid");
@@ -35,7 +42,7 @@ export const reminder = (app: Express) => {
                 email_to_remind_on: email,
                 scheduled_data_time: new Date(onTime),
                 description: desc,
-                is_recurring: 0,
+                is_recurring: is_recurring,
                 user_id: parseInt(result.id)
             }
         })
@@ -80,13 +87,26 @@ export const reminder = (app: Express) => {
             throw Error("No property to update...");
         }
 
-        const reminder = await prisma.reminder.update({
+        const [update_time, reminder] = await Promise.all([
+            redis.get("state:update_time"), prisma.reminder.findUnique({where:{id}})
+        ])
+
+        if(!reminder) throw Error("Reminder not found!");
+
+        if(onTime && update_time && new Date(update_time).getTime() > new Date(onTime).getTime()) {
+            queue.add(reminder.id, {
+                id: reminder.id,
+                time: reminder.scheduled_data_time,
+                updateAt: reminder.updatedAt
+            })
+        }
+
+        await prisma.reminder.update({
             where: {id},
             data: updateObject
         })
 
         //TODO Check and update a job in queue
-
         resObj.message = "Reminder Updated...";
 
     })

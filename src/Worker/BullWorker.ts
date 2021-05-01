@@ -2,9 +2,9 @@ import { Worker } from "bullmq";
 import { scheduleJob } from "./Scheduler";
 
 export interface reminderJob {
-    name: string,
-    email: string,
+    id: string
     time: string
+    updatedAt: string
 }
 
 const QUEUE_NAME = "reminders";
