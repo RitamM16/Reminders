@@ -4,10 +4,13 @@ import { reminderJob } from "./BullWorker";
 import { sendMail } from "./Mail/config";
 import { PrismaClient } from "@prisma/client";
 import ioredis from "ioredis";
+import { Queue } from "bullmq";
 
 const redis = new ioredis(6379,"localhost");
 
 const prisma = new PrismaClient();
+
+const queue = new Queue("push_notification");
 
 function formatDate(date: Date) {
     //const date = new Date(dateString);
@@ -18,38 +21,46 @@ function formatDate(date: Date) {
 
 export async function scheduleJob(reminder: reminderJob) {
 
-    const time = dateTime.addMinutes(new Date(reminder.time),0)
-
-    console.log("registered for",reminder)
+    //A little time offset to balance any delay in starting and during its execution of the job
+    const time = dateTime.addSeconds(new Date(reminder.time),5)
 
     const job = schedule.scheduleJob(time,async function(remainder: reminderJob) {
-        //Send Email
-        console.log("sending email",reminder)
 
         //Check if the reminder is still valid
-        const freshReminder = await prisma.reminder.findUnique({where: {id: remainder.id}})
+        const [freshReminder, NextUpdateTime] = await Promise.all([
+            prisma.reminder.findUnique({where: {id: remainder.id}}),
+            redis.get("state:update_time")
+        ])
 
         //If deleted already then no need to 
         if(!freshReminder) return
-
-        const NextUpdateTime = await redis.get("state:update_time") as string;
 
         //If modified
         if(freshReminder.updatedAt.getTime() !== new Date(remainder.updatedAt).getTime()){
             
             //If new time is less than previoud time or scheduled time is greater the update time
             if(freshReminder.scheduled_data_time.getTime() < new Date(remainder.time).getTime() 
-                || freshReminder.scheduled_data_time.getTime() > new Date(NextUpdateTime).getTime()) {
+                || freshReminder.scheduled_data_time.getTime() > new Date(NextUpdateTime!).getTime()) {
                     return
                 }
         } 
 
-        await sendMail(
-            freshReminder.name,
-            freshReminder.description,
-            formatDate(freshReminder.scheduled_data_time),
-            freshReminder.email_to_remind_on
-        )
+        await Promise.all([
+            queue.add("new_reminder",{
+                id: freshReminder.id,
+                name: freshReminder.name,
+                desc: freshReminder.description,
+                email: freshReminder.email_to_remind_on,
+                time: freshReminder.scheduled_data_time,
+                is_recurring: freshReminder.is_recurring
+            }),
+            sendMail(
+                freshReminder.name,
+                freshReminder.description,
+                formatDate(freshReminder.scheduled_data_time),
+                freshReminder.email_to_remind_on
+            )
+        ])
 
         if(freshReminder.is_recurring !== "no"){
             let time;

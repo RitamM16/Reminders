@@ -3,6 +3,12 @@ import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
 
+
+/**
+ * Using the nodemailer app as SMTP server for testing,
+ * But any other publically available or privately owned
+ * service will also work
+ * */
 const transporter = nodemailer.createTransport({
     host: 'localhost',
     port: 1025,
@@ -33,5 +39,3 @@ export async function sendMail(
         })
     })
 }
-
-//sendMail("Birthday","Its a test email",new Date().toLocaleString(),"test@test.com")

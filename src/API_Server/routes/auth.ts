@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { Express } from "express";
-import { generateJWT } from "../utils/AuthUtils";
+import { generateJWT } from "../../utils/AuthUtils";
 import { appPost, createResponseObject, prisma } from "./root";
 
 export const validateEmail = (email: string) => {

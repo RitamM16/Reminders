@@ -11,7 +11,6 @@ const prisma = new PrismaClient();
 export async function getAllTheJobsWithInGiveTime(time: number) {
     const now = new Date()
     const timestamp = date.addHours(now, time);
-    console.log("timestamp:", timestamp)
     return prisma.reminder.findMany({
         where: {
             AND: [
@@ -24,6 +23,9 @@ export async function getAllTheJobsWithInGiveTime(time: number) {
                     scheduled_data_time: {
                         gt: now
                     }
+                },
+                {
+                    completed:0
                 }
             ]
         },

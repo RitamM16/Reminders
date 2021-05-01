@@ -1,5 +1,5 @@
 import { Express } from "express";
-import { checkAuthToken, verifyJWT } from "../utils/AuthUtils";
+import { checkAuthToken, verifyJWT } from "../../utils/AuthUtils";
 import {appDelete, appPost, prisma} from "./root";
 import {v4 as uuid4} from "uuid";
 import ioredis from "ioredis";

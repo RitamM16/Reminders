@@ -10,6 +10,7 @@ export interface reminderJob {
 const QUEUE_NAME = "reminders";
 
 export function startWorker(){
+    //Worker listening for new reminder jobs
     return new Worker(QUEUE_NAME, async job => {
         scheduleJob(job.data)
     })
