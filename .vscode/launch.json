@@ -8,13 +8,25 @@
             "type": "node",
             "request": "launch",
             "name": "Launch API Server",
-            "program": "${workspaceFolder}\\src\\API Server\\index.ts",
+            "program": "${workspaceFolder}\\src\\API_Server\\index.ts",
             "sourceMaps": true,
             "trace": "all",
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ],
             "envFile": "${workspaceFolder}/.env",
+            "outputCapture": "std"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Worker",
+            "program": "${workspaceFolder}\\src\\Worker\\index.ts",
+            "sourceMaps": true,
+            "trace": "all",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
             "outputCapture": "std"
         }
     ]
