@@ -6,11 +6,11 @@ const prisma = new PrismaClient();
 /**
  * Gets all the reminders from the database that is within
  * the given time frame
- * @param time Time in hours
+ * @param time Time in min
  */
 export async function getAllTheJobsWithInGiveTime(time: number) {
     const now = new Date()
-    const timestamp = date.addHours(now, time);
+    const timestamp = date.addMinutes(now, time);
     return prisma.reminder.findMany({
         where: {
             AND: [
@@ -31,6 +31,16 @@ export async function getAllTheJobsWithInGiveTime(time: number) {
         },
         orderBy: {
             scheduled_data_time: 'asc'
+        }
+    })
+}
+
+export async function getReminderDetailsOfAllTheGivenId(ids: string[]){
+    return prisma.reminder.findMany({
+        where: {
+            id: {
+                in: ids
+            }
         }
     })
 }

@@ -28,6 +28,18 @@
                 "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Loader",
+            "program": "${workspaceFolder}\\src\\Job_Loader\\index.ts",
+            "sourceMaps": true,
+            "trace": "all",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "outputCapture": "std"
         }
     ]
 }

@@ -63,6 +63,28 @@ interface ExpressReqRes {
 }
 
 /**
+ * Express post Handler with Error Handler and Json Parser
+ * @param path route that the server is listening for
+ * @param callback Function
+ */
+ export function appGet(app:Express, path: string, callback: ExpressReqRes){
+    
+    app.get(path,async (req,res) => {
+
+        const responseObj = createResponseObject();
+
+        try {
+            await callback(req,res,responseObj);
+        } catch (error) {
+            responseObj.error = true;
+            responseObj.message = error.message;
+        } finally {
+            res.json(responseObj);
+        }
+    });
+}
+
+/**
  * An response template for uniform response structure
  * @returns Response object
  */

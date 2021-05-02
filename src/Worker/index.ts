@@ -1,5 +1,7 @@
 import { startWorker } from "./BullWorker";
+import { connectToSocketServer } from "./Socket";
 
-const worker = startWorker();
+connectToSocketServer();
+const [worker, queueScheduler] = startWorker();
 
 console.log("The worker is working!")

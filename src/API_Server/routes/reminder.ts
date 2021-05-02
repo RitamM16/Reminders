@@ -1,13 +1,17 @@
 import { Express } from "express";
 import { checkAuthToken, verifyJWT } from "../../utils/AuthUtils";
-import {appDelete, appPost, prisma} from "./root";
+import {appDelete, appGet, appPost, prisma} from "./root";
 import {v4 as uuid4} from "uuid";
 import ioredis from "ioredis";
 import { Queue } from "bullmq";
 
-const redis = new ioredis(6379,"localhost");
 
-const queue = new Queue("reminders");
+let REDIS_PORT = process.env.REDIS_PORT || 6379;
+const REDIS_HOST = process.env.REDIS_HOST || "localhost";
+
+if(typeof(REDIS_PORT) === "string") REDIS_PORT = parseInt(REDIS_PORT);
+const redis = new ioredis(REDIS_PORT,"localhost");
+const queue = new Queue("reminders",{connection:redis});
 
 export const reminder = (app: Express) => {
     
@@ -35,17 +39,29 @@ export const reminder = (app: Express) => {
             throw Error("Email format Invalid");
         }
 
-        const reminder = await prisma.reminder.create({
-            data: {
-                id: uuid4(),
-                name: name,
-                email_to_remind_on: email,
-                scheduled_data_time: new Date(onTime),
-                description: desc,
-                is_recurring: is_recurring,
-                user_id: parseInt(result.id)
-            }
-        })
+        const [update_time, reminder] = await Promise.all([
+            redis.get("state:update_time"),
+            prisma.reminder.create({
+                data: {
+                    id: uuid4(),
+                    name: name,
+                    email_to_remind_on: email,
+                    scheduled_data_time: new Date(onTime),
+                    description: desc,
+                    is_recurring: is_recurring,
+                    user_id: parseInt(result.id)
+                }
+            })
+        ])
+
+        //Schedule the reminder immediately as the schedule loop has already been done for the time range
+        if(update_time && new Date(update_time).getTime() > new Date(onTime).getTime()){
+            queue.add(reminder.id,{
+                id: reminder.id,
+                time: reminder.scheduled_data_time,
+                updateAt: reminder.updatedAt
+            })
+        }
 
         resObj.message = "Reminder Created Succesfully...";
         resObj.data = {
@@ -130,5 +146,18 @@ export const reminder = (app: Express) => {
 
         resObj.message = "Reminder Deleted..."
         
+    })
+
+    appGet(app,'/get-reminders', async (req,res,resObj) => {
+
+        //Check auth token
+        const result = checkAuthToken(req.headers.authorization);
+
+        const reminders = await prisma.reminder.findMany({where: {user_id: parseInt(result.id)}});
+
+        resObj.message = "Obtained reminders successfully...";
+
+        resObj.data = { reminders }
+
     })
 }
