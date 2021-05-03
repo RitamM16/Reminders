@@ -250,7 +250,7 @@ The server is divided into 4 services, namely the `API server`, `Job Loader`, `W
 
 # Installation Instructions
 
-1. Pre-requisites
+1. **Pre-requisites**
 
    1. Should have NodeJS v10.19.0 or above installed.
    2.  Should have NPM v6.14.4 or above installed.
@@ -258,7 +258,7 @@ The server is divided into 4 services, namely the `API server`, `Job Loader`, `W
    4. Should have PostgreSQL 13 or above installed.
    5. Optional - Can use Nodemailer APP as an SMTP server.
 
-2. Steps
+2. **Steps**
 
    1. Install dependencies
 
@@ -272,13 +272,41 @@ The server is divided into 4 services, namely the `API server`, `Job Loader`, `W
       npm run build
       ```
 
-   3. Initialize database and prisma client
+   3. Configure the .env file
+
+      ```
+      DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/reminders?schema=public"
+      
+      #Redis
+      REDIS_HOST="localhost"
+      REDIS_PORT=6379
+      
+      #API SERVER
+      PORT=3000
+      
+      #JOB LOADER
+      #Time after which the cronjob repeats
+      # Valid time default-1min 5min 30min 1hour
+      CRONJOB_TIME="1min"
+      
+      #SOCKET.IO
+      PUSH_NOTIFIER=9000
+      LOADER_WORKER=8000
+      
+      #SMTP variables
+      SMTP_HOST="localhost"
+      SMTP_PORT=1025
+      STMP_USERNAME="project.1"
+      STMP_PASSWORD="secret.1"
+      ```
+
+   4. Initialize database and prisma client
 
       ```shell
       npm run config-database
       ```
 
-3. Running steps
+3. **Running steps**
 
    Each of the 4 service needs to be ran separately, but should able to communicated with the dependencies.
 
