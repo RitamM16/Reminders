@@ -3,6 +3,11 @@ import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
 
+const HOST = process.env.SMTP_HOST || "localhost";
+const PORT = process.env.SMTP_PORT || 1025;
+const USER_NAME = process.env.STMP_USERNAME || "project.1";
+const PASSWORD = process.env.STMP_PASSWORD || "secret.1";
+
 
 /**
  * Using the nodemailer app as SMTP server for testing,
@@ -10,11 +15,12 @@ import path from "path";
  * service will also work
  * */
 const transporter = nodemailer.createTransport({
-    host: 'localhost',
-    port: 1025,
+    host: HOST,
+    //@ts-expect-error
+    port: parseInt(PORT),
     auth: {
-        user: 'project.1',
-        pass: 'secret.1'
+        user: USER_NAME,
+        pass: PASSWORD
     }
 });
 

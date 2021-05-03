@@ -4,12 +4,13 @@
   "description": "A simple app that reminds you of your important events",
   "main": "index.js",
   "scripts": {
-    "start:server": "node ./dist/API_Server/index.js",
-    "start:loader": "node ./dist/Job_Loader/index.js",
-    "start:worker": "node ./dist/Worker/index.js",
-    "start:push-notifier": "node ./dist/Push_Notifier/index.js",
+    "start:server": "node -r dotenv/config ./dist/API_Server/index.js",
+    "start:loader": "node -r dotenv/config ./dist/Job_Loader/index.js",
+    "start:worker": "node -r dotenv/config ./dist/Worker/index.js",
+    "start:push-notifier": "node -r dotenv/config ./dist/Push_Notifier/index.js",
     "build": "npx tsc",
-    "build:watch": "npx tsc -w"
+    "build:watch": "npx tsc -w",
+    "config-database": "npx prisma migrate dev --name init"
   },
   "keywords": [
     "NodeJS",
@@ -31,6 +32,7 @@
     "bcrypt": "^5.0.1",
     "bullmq": "^1.23.0",
     "date-and-time": "^1.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "handlebars": "^4.7.7",
     "ioredis": "^4.27.1",

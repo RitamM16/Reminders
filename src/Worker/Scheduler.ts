@@ -30,13 +30,11 @@ export async function scheduleJob(reminder: reminderJob) {
     const time = dateTime.addSeconds(new Date(reminder.time),5)
 
     //Record job being scheduled
-    const isAlreadyThere = addNewReminder(reminder.id);
+    const isAlreadyThere = addNewReminder(reminder.id,reminder.time);
 
     if(isAlreadyThere) return
 
     const job = schedule.scheduleJob(time,async function(remainder: reminderJob) {
-
-        console.log("reminder:", remainder)
 
         try {
             //Check if the reminder is still valid
@@ -77,7 +75,7 @@ export async function scheduleJob(reminder: reminderJob) {
             ])
 
             //Record job finished
-            removeReminder(remainder.id);
+            removeReminder(remainder.id,remainder.time);
 
             if(freshReminder.is_recurring !== "no"){
                 let time;

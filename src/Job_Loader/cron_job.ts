@@ -47,7 +47,7 @@ export const remindersQueue = new Queue('reminders', { connection: redis });
 //Schedule a cron job to run every 1 min
 export async function scheduleCronJob(){
     
-    schedule.scheduleJob(every5sec, async () => {
+    schedule.scheduleJob(schedule_time.cron_string, async () => {
 
         const next_time = date.addMinutes(new Date(), schedule_time.time).toUTCString();
 

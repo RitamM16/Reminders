@@ -7,15 +7,17 @@ SOCKET_PORT = typeof(SOCKET_PORT) === "string" ? parseInt(SOCKET_PORT) : SOCKET_
 
 const io = new Server(SOCKET_PORT);
 
-console.log("Push notifier is running on port ",SOCKET_PORT);
+console.log("Push notifier is running on port",SOCKET_PORT);
 
 //Map to store socket user mapping
 const socket_user_mapping:{[id:string]: string} = {}
 
 io.on('connection', async socket => {
-    
+
     //Get the authentication header
     const authHeader = socket.handshake.auth["token"] as string;
+
+    console.log("token", authHeader)
 
     if(!authHeader) socket.disconnect();
 
